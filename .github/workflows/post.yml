@@ -1,0 +1,27 @@
+name: Post to Instagram
+
+on:
+  repository_dispatch:
+    types: [post_instagram]
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install instagrapi requests
+
+      - name: Post to Instagram
+        env:
+          IG_USERNAME: ${{ secrets.IG_USERNAME }}
+          IG_PASSWORD: ${{ secrets.IG_PASSWORD }}
+          CAPTION: ${{ github.event.client_payload.caption }}
+          IMAGE_URL: ${{ github.event.client_payload.image_url }}
+        run: python post.py
