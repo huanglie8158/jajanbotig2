@@ -14,6 +14,23 @@ with open(temp_path, 'wb') as f:
     f.write(r.content)
 
 cl = Client()
+
+# Load session kalau ada, biar tidak login ulang terus
+session_path = '/tmp/session.json'
+if os.path.exists(session_path):
+    cl.load_settings(session_path)
+
 cl.login(USERNAME, PASSWORD)
-cl.photo_upload(temp_path, CAPTION)
-print("Posted successfully!")
+cl.dump_settings(session_path)
+
+# Post sebagai ARCHIVE (tidak muncul di feed, hanya di archive)
+media = cl.photo_upload(
+    temp_path,
+    CAPTION,
+    extra_data={"audience": "besties"}  # private-ish, hanya close friends
+)
+
+# Langsung archive setelah post
+cl.media_archive(media.id)
+
+print(f"Posted and archived successfully! Media ID: {media.id}")
